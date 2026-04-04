@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: feather-llmentor
+
+server:
+  port: 8999
