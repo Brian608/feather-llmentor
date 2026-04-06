@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 /**
  * @projectName: feather-llmentor
@@ -37,6 +38,11 @@ public class ChatClientController  implements InitializingBean {
     @GetMapping("/call")
     public String call(String message) {
         return chatClient.prompt(new Prompt(new SystemMessage("用英文回答"),new UserMessage(message))).call().content();
+    }
+
+    @GetMapping("/stream")
+    public Flux<String> stream(String message) {
+        return chatClient.prompt(message).stream().content();
     }
 
     @Override
