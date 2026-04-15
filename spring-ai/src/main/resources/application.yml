@@ -4,6 +4,17 @@ spring:
   ai:
     dashscope:
       api-key: sk-1441e7cd83c0411290f22624175a1d78
+    chat:
+      memory:
+        repository:
+          jdbc:
+            platform: mysql
+            initialization-mode: always
+  datasource:
+    url: jdbc:mysql://localhost:3306/spring-ai?useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 server:
   port: 8999
