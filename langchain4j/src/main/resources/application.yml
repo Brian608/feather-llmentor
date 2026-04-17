@@ -3,6 +3,13 @@ server:
 spring:
   application:
     name: LangChain4JRun
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      timeout: 5s
+
 
 
 langchain4j:

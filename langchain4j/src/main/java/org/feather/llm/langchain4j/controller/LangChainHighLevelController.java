@@ -5,6 +5,7 @@ import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import jakarta.servlet.http.HttpServletResponse;
+import org.feather.llm.langchain4j.chatMemory.RedisChatMemoryStore;
 import org.feather.llm.langchain4j.domain.Book;
 import org.feather.llm.langchain4j.service.LangChainAiService;
 import org.feather.llm.langchain4j.service.LangChainMemoryAiService;
@@ -33,6 +34,10 @@ public class LangChainHighLevelController  implements InitializingBean {
     private LangChainAiService aiService;
 
     private LangChainMemoryAiService memoryAiService;
+
+
+    @Autowired
+    private RedisChatMemoryStore redisChatMemoryStore;
 
     @Autowired
     OpenAiChatModel chatModel;
@@ -85,8 +90,8 @@ public class LangChainHighLevelController  implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         memoryAiService = AiServices.builder(LangChainMemoryAiService.class)
                 .chatModel(chatModel)
-                .chatMemoryProvider(memoryId -> MessageWindowChatMemory.withMaxMessages(10))
-//                .chatMemoryProvider(memoryId -> MessageWindowChatMemory.builder().id(memoryId).maxMessages(10).chatMemoryStore(redisChatMemoryStore).build())
+              //  .chatMemoryProvider(memoryId -> MessageWindowChatMemory.withMaxMessages(10))
+                .chatMemoryProvider(memoryId -> MessageWindowChatMemory.builder().id(memoryId).maxMessages(10).chatMemoryStore(redisChatMemoryStore).build())
                 .build();
     }
 
