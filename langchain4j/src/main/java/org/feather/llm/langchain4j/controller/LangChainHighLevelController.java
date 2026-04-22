@@ -90,8 +90,8 @@ public class LangChainHighLevelController  implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         memoryAiService = AiServices.builder(LangChainMemoryAiService.class)
                 .chatModel(chatModel)
-              //  .chatMemoryProvider(memoryId -> MessageWindowChatMemory.withMaxMessages(10))
-                .chatMemoryProvider(memoryId -> MessageWindowChatMemory.builder().id(memoryId).maxMessages(10).chatMemoryStore(redisChatMemoryStore).build())
+                .chatMemoryProvider(memoryId -> MessageWindowChatMemory.withMaxMessages(10))
+              //  .chatMemoryProvider(memoryId -> MessageWindowChatMemory.builder().id(memoryId).maxMessages(10).chatMemoryStore(redisChatMemoryStore).build())
                 .build();
     }
 
