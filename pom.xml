@@ -40,6 +40,7 @@
         <module>langchain4j</module>
         <module>function-call</module>
         <module>mcp/mcp-server-stdio</module>
+        <module>mcp/mcp-server-sse</module>
     </modules>
 
 
