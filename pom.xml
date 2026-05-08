@@ -25,6 +25,7 @@
         <module>mcp/mcp-server-stdio</module>
         <module>mcp/mcp-server-sse</module>
         <module>mcp/mcp-client</module>
+        <module>rag</module>
     </modules>
 
 
