@@ -1,5 +1,6 @@
 package org.feather.llm.rag.controller;
 
+import org.feather.llm.rag.cleaner.DocumentCleaner;
 import org.feather.llm.rag.reader.DocumentReaderFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +32,18 @@ public class RagReaderController {
     public String read(String path)  {
      List<Document> documentList;
         try {
-            documentList = documentReaderFactory.read(new File(path));
+            documentList = DocumentCleaner.cleanDocuments(documentReaderFactory.read(new File(path)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        StringBuffer sb = new StringBuffer();
         for (Document document : documentList) {
+            sb.append(document.getText());
             System.out.println(document.getText());
             System.out.println(document.getMetadata());
+            System.out.println("========");
+            sb.append("========================");
         }
-        return "success";
+        return sb.toString();
     }
 }
