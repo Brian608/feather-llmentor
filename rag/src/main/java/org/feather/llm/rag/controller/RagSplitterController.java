@@ -1,5 +1,6 @@
 package org.feather.llm.rag.controller;
 
+import com.alibaba.cloud.ai.transformer.splitter.RecursiveCharacterTextSplitter;
 import org.feather.llm.rag.cleaner.DocumentCleaner;
 import org.feather.llm.rag.reader.DocumentReaderFactory;
 import org.feather.llm.rag.spliter.OverlapParagraphTextSplitter;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -15,39 +17,20 @@ import java.util.List;
 /**
  * @projectName: feather-llmentor
  * @package: org.feather.llm.rag.controller
- * @className: RagReaderController
+ * @className: RagSplitterController
  * @author: feather
  * @description:
- * @since: 2026-05-09 10:43 AM
+ * @since: 2026-05-09 4:09 PM
  * @version: 1.0
  */
 @RestController
 @RequestMapping("/rag")
-public class RagReaderController {
-
+public class RagSplitterController {
     @Autowired
     private DocumentReaderFactory documentReaderFactory;
 
-    @GetMapping("/read")
-    public String read(String path)  {
-     List<Document> documentList;
-        try {
-            documentList = DocumentCleaner.cleanDocuments(documentReaderFactory.read(new File(path)));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        StringBuilder sb = new StringBuilder();
-        for (Document document : documentList) {
-            sb.append(document.getText());
-            System.out.println(document.getText());
-            System.out.println(document.getMetadata());
-            System.out.println("========");
-            sb.append("========================");
-        }
-        return sb.toString();
-    }
-    @GetMapping("/chunker")
-    public String chunker(String filePath) {
+    @GetMapping("/split")
+    public String split(String filePath) {
         List<Document> documents;
         try {
             documents = DocumentCleaner.cleanDocuments(documentReaderFactory.read(new File(filePath)));
@@ -57,12 +40,38 @@ public class RagReaderController {
 
         for (Document document : documents) {
             System.out.println("before chunk : " + document.getText());
+            System.out.println();
             OverlapParagraphTextSplitter tokenTextSplitter = new OverlapParagraphTextSplitter(
                     100,
                     5);
 
-
             List<Document> chunkedDocuments = tokenTextSplitter.split(document);
+
+            for (Document chunkedDocument : chunkedDocuments) {
+                System.out.println("after chunk : " + chunkedDocument.getText());
+                System.out.println();
+            }
+            System.out.println("==============");
+        }
+        return "success";
+    }
+
+    @RequestMapping("/splitRecursive")
+    public String splitRecursive(String filePath) {
+        List<Document> documents;
+        try {
+            documents = documentReaderFactory.read(new File(filePath));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (Document document : documents) {
+            System.out.println("before chunk : " + document.getText());
+            System.out.println();
+
+            RecursiveCharacterTextSplitter splitter = new RecursiveCharacterTextSplitter(300, new String[]{"\n\n", "\n"});
+
+            List<Document> chunkedDocuments = splitter.split(document);
 
             for (Document chunkedDocument : chunkedDocuments) {
                 System.out.println("after chunk : " + chunkedDocument.getText());
