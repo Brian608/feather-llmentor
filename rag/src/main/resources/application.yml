@@ -1,5 +1,8 @@
 spring:
   application:
-    name: Feather_RAG
+    name: feather_rag
+  ai:
+    dashscope:
+      api-key: sk-1441e7cd83c0411290f22624175a1d78
 server:
   port: 8001
