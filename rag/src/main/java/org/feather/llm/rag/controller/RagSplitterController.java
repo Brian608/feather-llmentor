@@ -3,6 +3,7 @@ package org.feather.llm.rag.controller;
 import com.alibaba.cloud.ai.transformer.splitter.RecursiveCharacterTextSplitter;
 import org.feather.llm.rag.cleaner.DocumentCleaner;
 import org.feather.llm.rag.reader.DocumentReaderFactory;
+import org.feather.llm.rag.spliter.MarkdownHeaderTextSplitter;
 import org.feather.llm.rag.spliter.OverlapParagraphTextSplitter;
 import org.springframework.ai.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @projectName: feather-llmentor
@@ -78,6 +80,52 @@ public class RagSplitterController {
                 System.out.println();
             }
             System.out.println("==============");
+        }
+        return "success";
+    }
+
+    @GetMapping("/splitParent")
+    public String splitParent() {
+        MarkdownHeaderTextSplitter markdownHeaderTextSplitter = new MarkdownHeaderTextSplitter(Map.of("#", "一级标题", "##", "二级标题", "###", "三基标题"), false
+                , false, true);
+
+        String markdownTest = """
+                #哒哒哒
+                大叔大大
+                
+                ## dasdasda
+                ### fcsafadfa
+                dsada
+                dasdas
+                dasdsaddsadfwr
+                
+                ## dsadasd
+                ## edawdada
+                ### dasdasda
+                dadafaf
+                
+                #### fsdfsfasfsf
+                
+                # e2ewaeaw
+                ## dawdadas
+                dsadasd
+                ## dsadas
+                ## dasda
+                dsadad
+                ### asfasdada
+                ### dadad
+                
+                Eadsadada
+                
+                #### dfasda
+                daddadsa
+                """;
+        List<Document> documents = markdownHeaderTextSplitter.split(new Document(markdownTest));
+        for (Document document : documents) {
+            System.out.println(document.getText());
+            System.out.println(document.getMetadata());
+            System.out.println("==============");
+
         }
         return "success";
     }
