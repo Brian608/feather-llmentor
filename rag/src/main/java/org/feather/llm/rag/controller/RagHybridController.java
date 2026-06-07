@@ -4,6 +4,7 @@ import com.alibaba.cloud.ai.transformer.splitter.RecursiveCharacterTextSplitter;
 import org.feather.llm.rag.embedding.EmbeddingService;
 import org.feather.llm.rag.es.ElasticSearchService;
 import org.feather.llm.rag.es.EsDocumentChunk;
+import org.feather.llm.rag.rank.RerankUtil;
 import org.feather.llm.rag.reader.DocumentReaderFactory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -36,6 +37,9 @@ public class RagHybridController {
 
     @Autowired
     private ElasticSearchService elasticSearchService;
+
+    @Autowired
+    private ChatModel chatModel;
 
 
     @RequestMapping("write")
@@ -84,6 +88,54 @@ public class RagHybridController {
     @RequestMapping("searchFromVector")
     public List<Document> searchFromVector(String keyword) throws Exception {
         return embeddingService.similaritySearch(keyword);
+    }
+    @RequestMapping("searchFromHybrid")
+    public List<String> searchFromHybrid(String keyword) throws Exception {
+        List<EsDocumentChunk> esDocs = elasticSearchService.searchByKeyword(keyword);
+
+        System.out.println(esDocs);
+        System.out.println("================");
+
+        List<Document> vectorDocs = embeddingService.similaritySearch(keyword);
+        System.out.println(vectorDocs);
+        System.out.println("================");
+
+        List<String> result = RerankUtil.rerankFusion(vectorDocs, esDocs, keyword, 5);
+        System.out.println(result);
+        System.out.println("================");
+        return result;
+    }
+    @RequestMapping("chatToHybrid")
+    public String chatToHybrid(String keyword) throws Exception {
+
+        String newQuestion = chatModel.call(
+                """
+                        你是一个问题改写大师，请改写用户的问题，使其更具体、更详细。
+                        如果其中有错别字，请你直接做修改。
+                        用户问题：
+                        
+                        """ + keyword
+        );
+
+        System.out.println(newQuestion);
+
+        List<EsDocumentChunk> esDocs = elasticSearchService.searchByKeyword(newQuestion);
+
+        List<Document> vectorDocs = embeddingService.similaritySearch(newQuestion);
+
+        List<String> result = RerankUtil.rerankFusion(vectorDocs, esDocs, newQuestion, 5);
+
+        String prompt = """
+                请根据以下文档内容，回答用户的问题。
+                注意，你只能参考文档内容回答，不要自己做推理。
+                文档内容：
+                {contents}
+                
+                用户问题:
+                {question}
+                """;
+
+        return chatModel.call(new PromptTemplate(prompt).create(Map.of("contents", result, "question", newQuestion))).getResult().getOutput().getText();
     }
 
 
