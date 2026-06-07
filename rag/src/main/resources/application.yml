@@ -26,5 +26,8 @@ spring:
     url: jdbc:postgresql://localhost:5433/rag_test #
     username: pgvector
     password: pgvector
+  elasticsearch:
+    uris: http://localhost:9200
+
 server:
   port: 8001
