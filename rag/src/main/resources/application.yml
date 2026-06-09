@@ -26,6 +26,15 @@ spring:
     url: jdbc:postgresql://localhost:5433/rag_test #
     username: pgvector
     password: pgvector
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: neo4j666
+    # 连接失败不阻止启动
+    connection-timeout: 5s
+    # 启动时不验证连接
+    verify-connection: false
   elasticsearch:
     uris: http://localhost:9200
 
