@@ -37,6 +37,11 @@ spring:
     verify-connection: false
   elasticsearch:
     uris: http://localhost:9200
-
+minio:
+  url: http://localhost:9000
+  accessKey: minioadmin
+  secretKey: minioadmin
+  bucketName: rag-test
+  endpoint: http://localhost:9000
 server:
   port: 8001
