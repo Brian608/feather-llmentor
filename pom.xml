@@ -26,6 +26,7 @@
         <module>mcp/mcp-server-sse</module>
         <module>mcp/mcp-client</module>
         <module>rag</module>
+        <module>general-agent</module>
     </modules>
 
 
