@@ -1,7 +1,12 @@
 package org.feather.llm.mentor.agent.controller;
 
+import com.alibaba.cloud.ai.graph.RunnableConfig;
+import com.alibaba.cloud.ai.graph.agent.ReactAgent;
+import com.alibaba.cloud.ai.graph.checkpoint.savers.mysql.MysqlSaver;
+import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
 import org.feather.llm.mentor.agent.tools.StockTools;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.sql.DataSource;
 import java.util.Calendar;
 import java.util.List;
 
@@ -41,6 +47,9 @@ public class ReactAgentController {
 
     @Autowired
     ToolCallingManager toolCallingManager;
+
+    @Autowired
+    private DataSource dataSource;
 
     @GetMapping("/call")
     public String call(String conversationId) {
@@ -125,5 +134,26 @@ public class ReactAgentController {
         }
 
         return chatResponse.getResult().getOutput().getText();
+    }
+
+    @GetMapping("/chatWithMySqlSaver")
+    public String chatWithMySqlSaver(String conversationId,String msg) throws GraphRunnerException {
+
+        String systemPrompt = String.format("你是一个智能助手");
+
+        ReactAgent agent = ReactAgent.builder()
+                .name("executor")
+                .model(chatModel)
+                .systemPrompt(systemPrompt)
+                .saver(new MysqlSaver.Builder().dataSource(dataSource).build())
+                .build();
+
+        RunnableConfig config = RunnableConfig.builder()
+                .threadId(conversationId)
+                .build();
+
+        AssistantMessage chatResponse = agent.call(msg, config);
+
+        return chatResponse.getText();
     }
 }
